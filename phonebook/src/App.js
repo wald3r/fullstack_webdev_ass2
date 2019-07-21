@@ -18,32 +18,32 @@ const App = () => {
 
     )
 
-    const addToPhonebook = (event) => {
-      event.preventDefault()
-      console.log('button clicked', event.target)
+  const addName = (event) => {
+    event.preventDefault()
+    console.log('button clicked', event.target)
 
-      const personObject = {
-        name: newName
-      }
-
-      setPersons(persons.concat(personObject))
-      setNewName('')
+    const personsObject = {
+      name: newName
     }
 
+    setPersons(persons.concat(personsObject))
+    setNewName('')
+  }
 
-    const handlePersonChange = (event) => {
-        console.log(event.target.value)
-        setNewName(event.target.value)
-    }
+  const handleNameChange = (event) => {
+    console.log(event.target.value)
+    setNewName(event.target.value)
+  }
+
 
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={addToPhonebook}>
+      <form onSubmit={addName}>
         <div>
           name: <input value={newName}
-                       onChange={handlePersonChange}/>
+                       onChange={handleNameChange}/>
         </div>
         <div>
             <button type="submit">add</button>
