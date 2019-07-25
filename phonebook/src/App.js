@@ -1,15 +1,39 @@
 import React, { useState } from 'react'
 import Person from './components/Person'
 
+
+
+const findPerson = (persons, name) => {
+  
+  for(let i = 0; i < persons.length; i++){
+    if (persons[i].name === name){
+      return true
+    }
+  }
+  return false
+}
+
+
+
+
 const App = () => {
-  const [ persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
-  ]) 
+  const [persons, setPersons] = useState([
+    { name: 'Arto Hellas', number: '040-123456' },
+    { name: 'Ada Lovelace', number: '39-44-5323523' },
+    { name: 'Dan Abramov', number: '12-43-234345' },
+    { name: 'Mary Poppendieck', number: '39-23-6423122' }
+  ])
   const [ newName, setNewName ] = useState('')
+  const [ newNumber, setNewNumber ] = useState('')
+  const [ newFilter, setNewFilter] = useState('')
+  const [ showAll, setShowAll] = useState(true)
 
 
+  const contactsToShow = showAll ? persons : persons.filter(function(person) {
+    return person.name.includes(newFilter) 
+  })
 
-  const rows = () => persons.map(person =>
+  const rows = () => contactsToShow.map(person =>
 
         <Person 
           key={person.name}
@@ -18,15 +42,25 @@ const App = () => {
 
     )
 
-  const addName = (event) => {
+
+  const addContact = (event) => {
     event.preventDefault()
     console.log('button clicked', event.target)
 
     const personsObject = {
-      name: newName
+      name: newName,
+      number: newNumber
     }
 
-    setPersons(persons.concat(personsObject))
+
+    if(!findPerson(persons, personsObject.name)){
+      setPersons(persons.concat(personsObject))
+    }
+    else{
+      window.alert(`${newName} is already added to phonebook`)
+    }
+    
+
     setNewName('')
   }
 
@@ -35,15 +69,43 @@ const App = () => {
     setNewName(event.target.value)
   }
 
+  const handleNumberChange = () => {
+    console.log(event.target.value)
+    setNewNumber(event.target.value)
+  }
+
+  const handleFilter = () => {
+    if(event.target.value === ''){
+      setNewFilter('')
+      setShowAll(true)
+    }
+    else{
+      console.log(event.target.value)
+      setNewFilter(event.target.value)
+      setShowAll(false)
+    }
+
+
+  }
 
 
   return (
     <div>
-      <h2>Phonebook</h2>
-      <form onSubmit={addName}>
+      <h1>Phonebook</h1>
+      <h2>filter contact</h2>
+      <div>
+        filter shown with <input value={newFilter}
+                                 onChange={handleFilter}/>
+      </div>
+      <h2>add new contact</h2>
+      <form onSubmit={addContact}>
         <div>
           name: <input value={newName}
                        onChange={handleNameChange}/>
+        </div>
+        <div>
+          number: <input value={newNumber}
+                         onChange={handleNumberChange}/>
         </div>
         <div>
             <button type="submit">add</button>

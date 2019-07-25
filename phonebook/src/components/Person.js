@@ -4,10 +4,10 @@ import React from 'react'
 
 const Person = ({person}) => {
 
-    console.log('names is ', person.name )
+    //console.log('person is ', person)
     return (
         <li>
-            {person.name}
+            {person.name}  {person.number}
         </li>
 
     )
