@@ -1,5 +1,5 @@
 {
-  "name": "phonebook",
+  "name": "countries",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -15,7 +15,6 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "server": "json-server -p3001 db.json"
+    "eject": "react-scripts eject"
   }
 }
