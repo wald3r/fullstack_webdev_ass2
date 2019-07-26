@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios';
-import Country from './components/Country'
-import DetailedCountry from './components/DetailedCountry';
+import Countries from './components/Countries';
+
 
 const App = () => {
 
@@ -12,33 +12,12 @@ const App = () => {
     var filterAll = () => {
         var filtered = countries.filter(country => country.name.includes(newFilter))
         console.log(filtered)
-        if (filtered.length > 10){
+        if (newFilter === ''){
             return []
         }else{
             return filtered
         }
-
-
     }  
-
-    const print = () => {
-        const countriesToShow = showNothing ? [] : filterAll()
-        console.log('length', countriesToShow)
-        if(countriesToShow.length > 1){
-             countriesToShow.map(country => {
-                <Country 
-                     key={country.name}
-                     country={country}
-                />
-            })
-        }else if (countriesToShow.length === 1) {
-            <DetailedCountry 
-                key={countriesToShow[0].name}
-                country={countriesToShow[0]}
-            />
-        }
-    }
-    
 
     useEffect(() => {
         console.log('Effect')
@@ -50,8 +29,6 @@ const App = () => {
             })
     }, [])
     console.log('render', countries.length, 'length')
-
-
 
     const changeFilterHandler = () => {
         console.log(event.target.value)
@@ -70,9 +47,9 @@ const App = () => {
                 find countries <input input={newFilter}
                                       onChange={changeFilterHandler}/> 
             </form>
-            <ul>
-                {print()}
-            </ul>
+            <Countries 
+                countries={showNothing ? [] : filterAll()}
+            />
         </div>
     )
 }
