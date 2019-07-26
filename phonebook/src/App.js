@@ -2,16 +2,18 @@ import React, { useState, useEffect } from 'react'
 import Person from './components/Person'
 import Form from './components/Form'
 import Filter from './components/Filter'
-import axios from 'axios'
+import personsService from './services/persons'
+import Notification from './components/Notification'
+import Error from './components/Error'
 
 const findPerson = (persons, name) => {
   
   for(let i = 0; i < persons.length; i++){
     if (persons[i].name === name){
-      return true
+      return persons[i].id
     }
   }
-  return false
+  return -1
 }
 
 const App = () => {
@@ -20,15 +22,17 @@ const App = () => {
   const [ newNumber, setNewNumber ] = useState('')
   const [ newFilter, setNewFilter] = useState('')
   const [ showAll, setShowAll] = useState(true)
+  const [ notificationMessage, setNotificationMessage] = useState('')
+  const [ errorMessage, setErrorMessage] = useState('')
 
 
   useEffect (() => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
+    personsService
+      .getAll()
       .then(response => {
         console.log('promise fulfilled')
-        setPersons(response.data)
+        setPersons(response)
       })
   } , [])
   console.log('render', persons.length, 'persons')
@@ -38,10 +42,30 @@ const App = () => {
     return person.name.includes(newFilter) 
   })
 
+
+  const handlePersonsRemoval = id => {
+    var result = window.confirm("Do you really want to delete this person?")
+    if(result){
+        personsService
+        .remove(id)
+        setPersons(persons.filter(function(value){
+          return value.id !== id
+      }))
+      setNotificationMessage(`Person deleted`)
+      setTimeout(() => { setNotificationMessage('')}, 5000)
+      .catch(error => {
+        setErrorMessage(`Couldn't delete this person`)
+        setTimeout(() => { setErrorMessage('')}, 5000)
+      })
+    }
+
+  }
+
   const rows = () => contactsToShow.map(person =>
         <Person 
           key={person.name}
           person={person}
+          handlePersonsRemoval={() => handlePersonsRemoval(person.id)}
         />
     )
 
@@ -54,13 +78,39 @@ const App = () => {
       number: newNumber
     }
 
-    if(!findPerson(persons, personsObject.name)){
-      setPersons(persons.concat(personsObject))
+    var personId = findPerson(persons, personsObject.name)
+
+    if(personId === -1){
+      personsService
+        .create(personsObject)
+        .then(response => {
+          setPersons(persons.concat(response))
+          setNotificationMessage(`Added ${personsObject.name}`)
+          setTimeout(() => { setNotificationMessage('')}, 5000)
+        })
+        .catch(error => {
+          setErrorMessage(`Couldn't add ${personsObject.name}`)
+          setTimeout(() => { setErrorMessage('')}, 5000)
+        })
     }
     else{
-      window.alert(`${newName} is already added to phonebook`)
+      var result = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)
+      if(result){
+        personsService
+          .update(personId, personsObject)
+          .then(response => {
+            setPersons(persons.map(person =>  person.id !== personId ? person : response))
+            setNotificationMessage(`Updated ${personsObject.name}'s number`)
+            setTimeout(() => { setNotificationMessage('')}, 5000)
+          })
+          .catch(error => {
+            setErrorMessage(`Couldn't update ${personsObject.name}'s number`)
+            setTimeout(() => { setErrorMessage('')}, 5000)
+          })
+        }
     }
     setNewName('')
+    setNewNumber('')
   }
 
   const handleNameChange = (event) => {
@@ -89,6 +139,8 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Error message={errorMessage} />
+      <Notification message={notificationMessage} />
       <Filter newFilter={newFilter}
               handleFilter={handleFilter}/>
       <h2>add new contact</h2>
